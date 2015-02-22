@@ -1,0 +1,98 @@
+---
+title: 'Getting and Cleaning Data: Project'
+output: html_document
+---
+
+## Introduction
+
+One of the most exciting areas in all of data science right now is wearable computing. Companies like Fitbit, Nike, and Jawbone Up are racing to develop the most advanced algorithms to attract new users. The data linked to from the course website represent data collected from the accelerometers from the Samsung Galaxy S smartphone. A full description is available at the site where the data was obtained:
+
+http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+Here are the data for the project:
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
+
+## Objective
+
+You should create one R script called run_analysis.R that does the following.
+
+- Merges the training and the test sets to create one data set.
+- Extracts only the measurements on the mean and standard deviation for each measurement.
+- Uses descriptive activity names to name the activities in the data set
+- Appropriately labels the data set with descriptive variable names.
+- From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+
+## Step by Step
+
+Step 1: Get features names
+
+```{r}
+feature <- read.table("./UCI HAR Dataset/features.txt")
+colnames(feature) <- c("No", "Names")
+```
+
+Step 2: Extracts mean and std related features
+
+```{r}
+index <- grep("mean|std", feature$Names)
+```
+
+Step 3: Get test and train data with desired features
+
+```{r}
+testAll <- read.table("./UCI HAR Dataset/test/X_test.txt")
+test <- testAll[ , index]
+trainAll <- read.table("./UCI HAR Dataset/train/X_train.txt")
+train <- trainAll[ , index]
+```
+
+Step 4: Merge test and train data with desired features into one dataset
+
+```{r}
+all <- rbind(test, train)
+```
+
+Step 5: Add descriptive column names
+
+```{r}
+colnames(all) <- feature[index, 2]
+```
+
+Step 6: Read test and train labels&subjects
+
+```{r}
+testlabel <- read.table("./UCI HAR Dataset/test/y_test.txt")
+trainlabel <- read.table("./UCI HAR Dataset/train/y_train.txt")
+label <- rbind(testlabel, trainlabel)
+colnames(label) <- "label"
+testsubject <- read.table("./UCI HAR Dataset/test/subject_test.txt")
+trainsubject <- read.table("./UCI HAR Dataset/train/subject_train.txt")
+subject <- rbind(testsubject, trainsubject)
+colnames(subject) <- "subject"
+```
+
+Step 7: Map activities labels
+
+```{r}
+activity <- read.table("./UCI HAR Dataset/activity_labels.txt")
+colnames(activity) <- c("label", "activity")
+label$activity <- factor(label$label, levels = activity$label, 
+                         labels = activity$activity)
+```
+
+Step 8: Merge label and subject info into dataset
+
+```{r}
+all <- cbind(label, subject, all)
+```
+
+Step 9: Create a dataset with average of each variable for each activity and each subject
+
+```{r}
+col <- as.character(feature[index, 2])
+tidy <- aggregate(all[ ,col], by = list(all$subject, all$activity), FUN = mean)
+colnames(tidy)[1] <- "subject"
+colnames(tidy)[2] <- "activity"
+write.table(tidy, file = "tidy.txt", row.names = FALSE)
+```
