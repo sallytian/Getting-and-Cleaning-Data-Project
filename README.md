@@ -23,8 +23,8 @@ You should create one R script called run_analysis.R that does the following.
 and each subject.
 
 ## Description on the files
-codebook.rmd: Describes the variables, the data, and any transformations or work performed to clean up the original data.
+codebook.rmd: Describes the variables, the data, and any transformations or work performed to clean up the original data.  
 run_analysis.R: Contains all the R code used to clean the original data obtained online. Steps are clearly explained in the 
-script.
+script.  
 tidy.txt: The final results containing the mean of each desired variable for each activity and each subject.
 
